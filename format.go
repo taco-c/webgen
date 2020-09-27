@@ -2,10 +2,9 @@ package main
 
 // Website holds information about everything.
 type Website struct {
-	OutputDir    string `xml:"output-dir"`
 	TemplateFile string `xml:"template-file"`
-	Pages        []Page `xml:"page"`
 	Stylesheet   string `xml:"stylesheet"`
+	Pages        []Page `xml:"page"`
 }
 
 // A Page is a html-document-to-be.
