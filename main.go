@@ -20,6 +20,9 @@ func main() {
 	if len(os.Args) > 2 {
 		outputDir = os.Args[2]
 	}
+	// outputDir = fmt.Sprintf("%s%c%s", getFileDir(outputDir), os.PathSeparator, outputDir)
+	outputDir, _ = filepath.Abs(outputDir)
+	fmt.Println("Output:", outputDir)
 
 	xmlData, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -27,7 +30,7 @@ func main() {
 	}
 
 	root := getFileDir(filename)
-	fmt.Println(root)
+	fmt.Println("Source root:", root)
 
 	var website Website
 	if err := xml.Unmarshal(xmlData, &website); err != nil {
@@ -35,7 +38,6 @@ func main() {
 	}
 
 	styleFile := fmt.Sprintf("%s%c%s", root, os.PathSeparator, website.Stylesheet)
-	fmt.Println(styleFile)
 	styleData, err := ioutil.ReadFile(styleFile)
 	if err != nil {
 		panic(err)
@@ -43,7 +45,6 @@ func main() {
 	globalStyle := string(styleData)
 
 	templateFile := fmt.Sprintf("%s%c%s", root, os.PathSeparator, website.TemplateFile)
-	fmt.Println(templateFile)
 	for _, page := range website.Pages {
 		page.Style = globalStyle + page.Style
 		writePage(&page, outputDir, templateFile)
@@ -72,13 +73,16 @@ func writePage(page *Page, root, templateFilename string) {
 	replace(&templateString, "style", page.Style)
 	replace(&templateString, "content", page.Content.InnerXML)
 
-	filepath := fmt.Sprintf("%s\\%s\\%s.html", root, page.Path, page.Filename)
-	fmt.Println(filepath)
+	filepath := fmt.Sprintf("%s%c%s.html", page.Path, os.PathSeparator, page.Filename)
+	// fmt.Println(getFileDir(fmt.Sprintf("%s%c%s", page.Path, os.PathSeparator, page.Filename)))
+	fmt.Println("Target:", root, "\\", filepath)
+	fullpath := fmt.Sprintf("%s%c%s", root, os.PathSeparator, filepath)
 
-	f, err := os.Create(filepath)
+	// Clean me up, please
+	f, err := os.Create(fullpath)
 	if err != nil {
 		os.MkdirAll(fmt.Sprintf("%s\\%s", root, page.Path), os.ModeDir)
-		f, err2 := os.Create(filepath)
+		f, err2 := os.Create(fullpath)
 		if err2 != nil {
 			panic(err)
 		}
