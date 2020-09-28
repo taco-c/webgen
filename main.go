@@ -65,23 +65,21 @@ func writePage(page *Page, root, templateFilename string) {
 	if err != nil {
 		panic(err)
 	}
-	templateString := string(templateBytes)
+	html := string(templateBytes)
 
-	replace(&templateString, "title1", page.Title1)
-	replace(&templateString, "title2", page.Title2)
-	replace(&templateString, "title3", page.Title3)
-	replace(&templateString, "style", page.Style)
-	replace(&templateString, "content", page.Content.InnerXML)
+	replace(&html, "title1", page.Title1)
+	replace(&html, "title2", page.Title2)
+	replace(&html, "title3", page.Title3)
+	replace(&html, "style", page.Style)
+	replace(&html, "content", page.Content.InnerXML)
 
-	filepath := fmt.Sprintf("%s%c%s.html", page.Path, os.PathSeparator, page.Filename)
-	// fmt.Println(getFileDir(fmt.Sprintf("%s%c%s", page.Path, os.PathSeparator, page.Filename)))
-	fmt.Println("Target:", root, "\\", filepath)
-	fullpath := fmt.Sprintf("%s%c%s", root, os.PathSeparator, filepath)
+	fullpath := fmt.Sprintf("%s%c%s%c%s.html", root, os.PathSeparator, page.Path, os.PathSeparator, page.Filename)
+	fmt.Println(fullpath)
 
 	// Clean me up, please
 	f, err := os.Create(fullpath)
 	if err != nil {
-		os.MkdirAll(fmt.Sprintf("%s\\%s", root, page.Path), os.ModeDir)
+		os.MkdirAll(fmt.Sprintf("%s%c%s", root, os.PathSeparator, page.Path), os.ModeDir)
 		f, err2 := os.Create(fullpath)
 		if err2 != nil {
 			panic(err)
@@ -90,7 +88,7 @@ func writePage(page *Page, root, templateFilename string) {
 	}
 	defer f.Close()
 
-	f.WriteString(templateString)
+	f.WriteString(html)
 }
 
 func replace(text *string, name, value string) {
